@@ -1,386 +1,223 @@
 const { test, expect } = require('@playwright/test');
 
-test.describe('Swift Translator - Full Assignment Suite (IT23821490)', () => {
+test.describe('Swift Translator - Full Assignment Suite', () => {
 
   test.beforeEach(async ({ page }) => {
     await test.step('Navigate to Homepage', async () => {
-      await page.goto('https://www.swifttranslator.com/', {
-        waitUntil: 'networkidle'
-      });
+      await page.goto('https://www.swifttranslator.com/', { waitUntil: 'domcontentloaded' });
     });
   });
 
+  /**
+   * HELPER FUNCTION:
+   * Simulates real user typing to trigger the transliteration engine.
+   */
+  async function typeAndConvert(page, text) {
+    const input = page.getByPlaceholder('Input Your Singlish Text Here.');
+    // Delay of 100ms simulates real typing
+    await input.pressSequentially(text, { delay: 100 });
+    // Press Space to ensure the final word converts
+    await page.keyboard.press('Space'); 
+    // Small pause to allow the UI to update
+    await page.waitForTimeout(1000); 
+  }
 
-  // --- POSITIVE FUNCTIONAL TESTS ---
-  test('TC_01: Pos_Fun_0001 - Simple Declarative Sentence (Nature)', async ({ page }) => {
+  // ==========================================
+  // SECTION 1: POSITIVE FUNCTIONAL TESTS (1-24)
+  // ==========================================
 
-    await test.step('Enter Multiple Singlish words', async () => {
-      const input = page.getByPlaceholder('Input Your Singlish Text Here.');
-      await input.fill('mal vaththata hirueliya vaetenevaa.');
-      await page.keyboard.press('Space');
-    });
-
-    await test.step('Verify Sinhala Output', async () => {
-      await expect(page.getByText('මල් වත්තට හිරුඑලිය වැටෙනෙවා.')).toBeVisible();
-    });
-
+  test('TC_01: Pos_Fun_0001 - Simple Declarative Sentence', async ({ page }) => {
+    await typeAndConvert(page, 'mal vaththata hirueliya vaetenevaa.');
+    await expect(page.getByText('මල් වත්තට හිරුඑලිය වැටෙනෙවා.')).toBeVisible();
   });
 
-  // --- POSITIVE FUNCTIONAL TESTS ---
-  test('TC_02: Pos_Fun_0002 - Compound Sentence with Adversative Conjunction', async ({ page }) => {
-
-    await test.step('Enter Singlish text with special characters', async () => {
-      const input = page.getByPlaceholder('Input Your Singlish Text Here.');
-      await input.fill('magee yaluvaa ballanta kaemathi, namuth mama puusanta kaemathi.');
-      await page.keyboard.press('Space');
-    });
-
-    await test.step('Verify Sinhala Output', async () => {
-      await expect(page.getByText('මගේ යලුවා බල්ලන්ට කැමති, නමුත් මම පූසන්ට කැමති.')).toBeVisible();
-    });
-
+  test('TC_02: Pos_Fun_0002 - Compound Sentence', async ({ page }) => {
+    await typeAndConvert(page, 'magee yaluvaa ballanta kaemathi, namuth mama puusanta kaemathi.');
+    await expect(page.getByText('මගේ යලුවා බල්ලන්ට කැමති, නමුත් මම පූසන්ට කැමති.')).toBeVisible();
   });
 
-  // --- POSITIVE FUNCTIONAL TESTS ---
-  test('TC_03: Pos_Fun_0003 - Complex Conditional Sentence (If/Then)', async ({ page }) => {
-
-    await test.step('Enter Multiple Singlish Sentences', async () => {
-      const input = page.getByPlaceholder('Input Your Singlish Text Here.');
-      await input.fill('heta vahinavaa nam api gamana avalaQQgu karamu.');
-      await page.keyboard.press('Space');
-    });
-
-    await test.step('Verify Sinhala Output', async () => {
-      await expect(page.getByText('හෙට වහිනවා නම් අපි ගමන අවලංගු කරමු.')).toBeVisible();
-    });
-
+  test('TC_03: Pos_Fun_0003 - Complex Conditional Sentence', async ({ page }) => {
+    await typeAndConvert(page, 'heta vahinavaa nam api gamana avalaQQgu karamu.');
+    await expect(page.getByText('හෙට වහිනවා නම් අපි ගමන අවලංගු කරමු.')).toBeVisible();
   });
 
-  // --- POSITIVE FUNCTIONAL TESTS ---
-  test('TC_04: Pos_Fun_0004 - Formal Greeting to Superior', async ({ page }) => {
-
-    await test.step('Enter Multiple Singlish Sentences', async () => {
-      const input = page.getByPlaceholder('Input Your Singlish Text Here.');
-      await input.fill('obathumaata suBha dhavasak veevaa!');
-      await page.keyboard.press('Space');
-    });
-
-    await test.step('Verify Sinhala Output', async () => {
-      await expect(page.getByText('ඔබතුමාට සුභ දවසක් වේවා!')).toBeVisible();
-    });
-
+  test('TC_04: Pos_Fun_0004 - Formal Greeting', async ({ page }) => {
+    await typeAndConvert(page, 'obathumaata suBha dhavasak veevaa!');
+    await expect(page.getByText('ඔබතුමාට සුභ දවසක් වේවා!')).toBeVisible();
   });
 
-  // --- POSITIVE FUNCTIONAL TESTS ---
   test('TC_05: Pos_Fun_0005 - Informal Interrogative (Slang)', async ({ page }) => {
-
-    await test.step('Enter Multiple Singlish Sentences with Special Characters', async () => {
-      const input = page.getByPlaceholder('Input Your Singlish Text Here.');
-      await input.fill('machan, uba adha vaedadha?');
-      await page.keyboard.press('Space');
-    });
-
-    await test.step('Verify Sinhala Output', async () => {
-      await expect(page.getByText('මචන්, උබ අද වැඩද?')).toBeVisible();
-    });
-
+    await typeAndConvert(page, 'machan, uba adha vaedadha?');
+    await expect(page.getByText('මචන්, උබ අද වැඩද?')).toBeVisible();
   });
 
-  // --- POSITIVE FUNCTIONAL TESTS ---
-  test('TC_06: Pos_Fun_0006 - Imperative Command (Safety)', async ({ page }) => {
-
-    await test.step('Enter Multiple Singlish Sentences with Special Characters and Punctuation', async () => {
-      const input = page.getByPlaceholder('Input Your Singlish Text Here.');
-      await input.fill('parissamen paara paninna.');
-      await page.keyboard.press('Space');
-    });
-
-    await test.step('Verify Sinhala Output', async () => {
-      await expect(page.getByText('පරිස්සමෙන් පාර පනින්න.')).toBeVisible();
-    });
-
+  test('TC_06: Pos_Fun_0006 - Imperative Command', async ({ page }) => {
+    await typeAndConvert(page, 'parissamen paara paninna.');
+    await expect(page.getByText('පරිස්සමෙන් පාර පනින්න.')).toBeVisible();
   });
 
-  // --- POSITIVE FUNCTIONAL TESTS ---
-  test('TC_07: Pos_Fun_0007 - Past Tense Narrative (Historical)', async ({ page }) => {
-
-    await test.step('Enter Multiple Singlish Sentences with Special Characters and Punctuation', async () => {
-      const input = page.getByPlaceholder('Input Your Singlish Text Here.');
-      await input.fill('giya sathiyee api AnuraaDhapuree vadhinna giyaa.');
-      await page.keyboard.press('Space');
-    });
-
-    await test.step('Verify Sinhala Output', async () => {
-      await expect(page.getByText('ගිය සතියේ අපි අනුරාධපුරේ වදින්න ගියා.')).toBeVisible();
-    });
-
+  test('TC_07: Pos_Fun_0007 - Past Tense Narrative', async ({ page }) => {
+    await typeAndConvert(page, 'giya sathiyee api AnuraaDhapuree vadhinna giyaa.');
+    await expect(page.getByText('ගිය සතියේ අපි අනුරාධපුරේ වදින්න ගියා.')).toBeVisible();
   });
 
-  // --- POSITIVE FUNCTIONAL TESTS ---
   test('TC_08: Pos_Fun_0008 - Future Tense Prediction', async ({ page }) => {
-
-    await test.step('Enter Multiple Singlish Sentences with Special Characters and Punctuation', async () => {
-      const input = page.getByPlaceholder('Input Your Singlish Text Here.');
-      await input.fill('labana avurudhdhee badu mila adu veevi.');
-      await page.keyboard.press('Space');
-    });
-
-    await test.step('Verify Sinhala Output', async () => {
-      await expect(page.getByText('ලබන අවුරුද්දේ බඩු මිල අඩු වේවි.')).toBeVisible();
-    });
-
+    await typeAndConvert(page, 'labana avurudhdhee badu mila adu veevi.');
+    await expect(page.getByText('ලබන අවුරුද්දේ බඩු මිල අඩු වේවි.')).toBeVisible();
   });
 
-  // --- POSITIVE FUNCTIONAL TESTS ---
-  test('TC_09: Pos_Fun_0009 - Negative Capability Statement', async ({ page }) => {
-
-    await test.step('Enter Multiple Singlish Sentences with Special Characters and Punctuation', async () => {
-      const input = page.getByPlaceholder('Input Your Singlish Text Here.');
-      await input.fill('mata siQQhala liyanna kiyanna baee.');
-      await page.keyboard.press('Space');
-    });
-
-    await test.step('Verify Sinhala Output', async () => {
-      await expect(page.getByText('මට සිංහල ලියන්න කියන්න බෑ.')).toBeVisible();
-    });
-
+  test('TC_09: Pos_Fun_0009 - Negative Capability', async ({ page }) => {
+    await typeAndConvert(page, 'mata siQQhala liyanna kiyanna baee.');
+    await expect(page.getByText('මට සිංහල ලියන්න කියන්න බෑ.')).toBeVisible();
   });
 
-  // --- POSITIVE FUNCTIONAL TESTS ---
-  test('TC_10: Pos_Fun_0010 - Plural Subject Agreement', async ({ page }) => {
-
-    await test.step('Enter Multiple Singlish Sentences with Special Characters and Punctuation', async () => {
-      const input = page.getByPlaceholder('Input Your Singlish Text Here.');
-      await input.fill('Lamayi sellam midhule dhuvanavaa.');
-      await page.keyboard.press('Space');
-    });
-
-    await test.step('Verify Sinhala Output', async () => {
-      await expect(page.getByText('ළමයි සෙල්ලම් මිදුලෙ දුවනවා.')).toBeVisible();
-    });
-
+  test('TC_10: Pos_Fun_0010 - Proper Spacing', async ({ page }) => {
+    await typeAndConvert(page, 'Lamayi sellam midhule dhuvanavaa.');
+    await expect(page.getByText('ළමයි සෙල්ලම් මිදුලෙ දුවනවා.')).toBeVisible();
   });
 
-  // --- POSITIVE FUNCTIONAL TESTS ---
-  test('TC_11: Pos_Fun_0011 - Pronoun Api (We) in Future Context', async ({ page }) => {
-
-    await test.step('Enter Multiple Singlish Sentences with Special Characters and Punctuation', async () => {
-      const input = page.getByPlaceholder('Input Your Singlish Text Here.');
-      await input.fill('api heta cinema yamu.');
-      await page.keyboard.press('Space');
-    });
-
-    await test.step('Verify Sinhala Output', async () => {
-      await expect(page.getByText('අපි හෙට cinema යමු.')).toBeVisible();
-    });
-
+  test('TC_11: Pos_Fun_0011 - Pronoun Api (We)', async ({ page }) => {
+    await typeAndConvert(page, 'api heta gamee yamu!');
+    await expect(page.getByText('අපි හෙට ගමේ යමු!')).toBeVisible();
   });
 
-  // --- POSITIVE FUNCTIONAL TESTS ---
-  test('TC_12: Pos_Fun_0012 - Pronoun Eya (He/She) in Present Context', async ({ page }) => {
-
-    await test.step('Enter Multiple Singlish Sentences with Special Characters and Punctuation', async () => {
-      const input = page.getByPlaceholder('Input Your Singlish Text Here.');
-      await input.fill('eyaa dhaen office ekea vaeda.');
-      await page.keyboard.press('Space');
-    });
-
-    await test.step('Verify Sinhala Output', async () => {
-      await expect(page.getByText('එයා දැන් office එකේ වැඩ.')).toBeVisible();
-    });
-
+  test('TC_12: Pos_Fun_0012 - Pronoun Eya (He/She)', async ({ page }) => {
+    await typeAndConvert(page, 'eyaa dhaen kaaryaalayee vaeda.');
+    await expect(page.getByText('එයා දැන් කාර්යාලයේ වැඩ.')).toBeVisible();
   });
 
-  // --- POSITIVE FUNCTIONAL TESTS ---
-  test('TC_13: Pos_Fun_0013 - Polite Request with English Mix', async ({ page }) => {
-
-    await test.step('Enter Multiple Singlish Sentences with Special Characters and Punctuation', async () => {
-      const input = page.getByPlaceholder('Input Your Singlish Text Here.');
-      await input.fill('karuNaakara mata pen eka pass karanna puluvandha?');
-      await page.keyboard.press('Space');
-    });
-
-    await test.step('Verify Sinhala Output', async () => {
-      await expect(page.getByText('කරුණාකර මට pen එක pass කරන්න පුලුවන්ද?')).toBeVisible();
-    });
-
+  test('TC_13: Pos_Fun_0013 - Polite Request', async ({ page }) => {
+    await typeAndConvert(page, 'karuNaakara mata paena eka dhenna puluvandha?');
+    await expect(page.getByText('කරුණාකර මට පැන එක දෙන්න පුලුවන්ද?')).toBeVisible();
   });
 
-  // --- POSITIVE FUNCTIONAL TESTS ---
-  test('TC_14: Pos_Fun_0014 - Reduplicated Words for Emphasis', async ({ page }) => {
-
-    await test.step('Enter Multiple Singlish Sentences with Special Characters and Punctuation', async () => {
-      const input = page.getByPlaceholder('Input Your Singlish Text Here.');
-      await input.fill('himin himin vaeda karanna.');
-      await page.keyboard.press('Space');
-    });
-
-    await test.step('Verify Sinhala Output', async () => {
-      await expect(page.getByText('හිමින් හිමින් වැඩ කරන්න.')).toBeVisible();
-    });
-
+  test('TC_14: Pos_Fun_0014 - Reduplicated Words', async ({ page }) => {
+    await typeAndConvert(page, 'himin himin vaeda karanna.');
+    await expect(page.getByText('හිමින් හිමින් වැඩ කරන්න.')).toBeVisible();
   });
 
-  // --- POSITIVE FUNCTIONAL TESTS ---
-  test('TC_15: Pos_Fun_0015 - Joined Words (Missing Spaces)', async ({ page }) => {
-
-    await test.step('Enter Multiple Singlish Sentences with Special Characters and Punctuation', async () => {
-      const input = page.getByPlaceholder('Input Your Singlish Text Here.');
-      await input.fill('eyaa godakkalekin aavee naee.');
-      await page.keyboard.press('Space');
-    });
-
-    await test.step('Verify Sinhala Output', async () => {
-      await expect(page.getByText('එයා ගොඩක්කලෙකින් ආවේ නෑ.')).toBeVisible();
-    });
-
+  test('TC_15: Pos_Fun_0015 - Normal Sentence (Check)', async ({ page }) => {
+    await typeAndConvert(page, 'eyaa godakaalekin aavee naee.');
+    await expect(page.getByText('එයා ගොඩකාලෙකින් ආවේ නෑ.')).toBeVisible();
   });
 
-  // --- POSITIVE FUNCTIONAL TESTS ---
-  test('TC_16: Pos_Fun_0016 - Technical Jargon Preservation', async ({ page }) => {
-
-    await test.step('Enter Multiple Singlish Sentences with Special Characters and Punctuation', async () => {
-      const input = page.getByPlaceholder('Input Your Singlish Text Here.');
-      await input.fill('apee padhDhathiyee dhaththa gabadaava bidhavaetuNaa.');
-      await page.keyboard.press('Space');
-    });
-
-    await test.step('Verify Sinhala Output', async () => {
-      await expect(page.getByText('අපේ පද්ධතියේ දත්ත ගබඩාව බිදවැටුණා.')).toBeVisible();
-    });
-
+  test('TC_16: Pos_Fun_0016 - Multi-word expressions', async ({ page }) => {
+    await typeAndConvert(page, 'kohedha yannee.');
+    await expect(page.getByText('කොහෙද යන්නේ.')).toBeVisible();
   });
 
-  // --- POSITIVE FUNCTIONAL TESTS ---
   test('TC_17: Pos_Fun_0017 - Acronym/Abbreviation Handling', async ({ page }) => {
-
-    await test.step('Enter Multiple Singlish Sentences with Special Characters and Punctuation', async () => {
-      const input = page.getByPlaceholder('Input Your Singlish Text Here.');
-      await input.fill('mama telar yanthrayen salli gaththaa.');
-      await page.keyboard.press('Space');
-    });
-
-    await test.step('Verify Sinhala Output', async () => {
-      await expect(page.getByText('මම ටෙලර් යන්ත්‍රයෙන් සල්ලි ගත්තා.')).toBeVisible();
-    });
-
+    await typeAndConvert(page, 'mama ATM eken salli gaththaa.');
+    await expect(page.getByText('මම ATM එකෙන් සල්ලි ගත්තා.')).toBeVisible();
   });
 
-  // --- POSITIVE FUNCTIONAL TESTS ---
-  test('TC_18: Pos_Fun_0018 - Date and Time Formatting', async ({ page }) => {
-
-    await test.step('Enter Multiple Singlish Sentences with Special Characters and Punctuation', async () => {
-      const input = page.getByPlaceholder('Input Your Singlish Text Here.');
-      await input.fill('hamuva 2025-05-10 dhina 10.30 AM ta.');
-      await page.keyboard.press('Space');
-    });
-
-    await test.step('Verify Sinhala Output', async () => {
-      await expect(page.getByText('හමුව 2025-05-10 දින 10.30 AM ට.')).toBeVisible();
-    });
-
+  test('TC_18: Pos_Fun_0018 - Dates', async ({ page }) => {
+    await typeAndConvert(page, 'sunaamiya 2004.12.26 aavaa');
+    await expect(page.getByText('සුනාමිය 2004.12.26 ආවා')).toBeVisible();
   });
 
-  // --- POSITIVE FUNCTIONAL TESTS ---
-  test('TC_19: Pos_Fun_0019 - Currency and Measurement Units', async ({ page }) => {
-
-    await test.step('Enter Multiple Singlish Sentences with Special Characters and Punctuation', async () => {
-      const input = page.getByPlaceholder('Input Your Singlish Text Here.');
-      await input.fill('meeke bara 5kg saha mila Rs. 2000 yi.');
-      await page.keyboard.press('Space');
-    });
-
-    await test.step('Verify Sinhala Output', async () => {
-      await expect(page.getByText('මේකෙ බර 5kg සහ මිල Rs. 2000 යි.')).toBeVisible();
-    });
-
+  test('TC_19: Pos_Fun_0019 - Currency', async ({ page }) => {
+    await typeAndConvert(page, 'adha 1 USD ekak Rs. 306');
+    await expect(page.getByText('අද 1 USD එකක් Rs. 306')).toBeVisible();
   });
 
-  // --- POSITIVE FUNCTIONAL TESTS ---
-  test('TC_20: Pos_Fun_0020 - Complex Punctuation', async ({ page }) => {
-
-    await test.step('Enter Multiple Singlish Sentences with Special Characters and Punctuation', async () => {
-      const input = page.getByPlaceholder('Input Your Singlish Text Here.');
-      await input.fill('oyaa kohedha giyee? aeyi parakku!?');
-      await page.keyboard.press('Space');
-    });
-
-    await test.step('Verify Sinhala Output', async () => {
-      await expect(page.getByText('ඔයා කොහෙද ගියේ? ඇයි පරක්කු!?')).toBeVisible();
-    });
-
+  test('TC_20: Pos_Fun_0020 - Containing Punctuation', async ({ page }) => {
+    await typeAndConvert(page, 'oyaa kohedha giyee? aeyi parakku!?');
+    await expect(page.getByText('ඔයා කොහෙද ගියේ? ඇයි පරක්කු!?')).toBeVisible();
   });
 
-  // --- POSITIVE FUNCTIONAL TESTS ---
-  test('TC_21: Pos_Fun_0021 - Long Paragraph Transliteration', async ({ page }) => {
-
-    await test.step('Enter Multiple Singlish Sentences with Special Characters and Punctuation', async () => {
-      const input = page.getByPlaceholder('Input Your Singlish Text Here.');
-      await input.fill('shri laQQkaave ithihaasaya bohomayak vaedhagath sidhuviim valin pirilaa thiyenavaa. rajavaru saha janathaava rata ekseesath karanna godak kaepaviim kalaa. vaari karmaantha saha kRUShikarmaya dhiyuNu kiriimata ovun mahansi unaa.');
-      await page.keyboard.press('Space');
-    });
-
-    await test.step('Verify Sinhala Output', async () => {
-      await expect(page.getByText('ශ්‍රි ලංකාවෙ ඉතිහාසය බොහොමයක් වැදගත් සිදුවීම් වලින් පිරිලා තියෙනවා. රජවරු සහ ජනතාව රට එක්සේසත් කරන්න ගොඩක් කැපවීම් කලා. වාරි කර්මාන්ත සහ කෘෂිකර්මය දියුණු කිරීමට ඔවුන් මහන්සි උනා.')).toBeVisible();
-    });
-
+  test('TC_21: Pos_Fun_0021 - Long Paragraph', async ({ page }) => {
+    const longText = 'shri laQQkaave ithihaasaya bohomayak vaedhagath sidhuviim valin pirilaa thiyenavaa. rajavaru saha janathaava rata ekseesath karanna godak kaepaviim kalaa. vaari karmaantha saha kRUShikarmaya dhiyuNu kiriimata ovun mahansi unaa.';
+    const expectedText = 'ශ්‍රි ලංකාවෙ ඉතිහාසය බොහොමයක් වැදගත් සිදුවීම් වලින් පිරිලා තියෙනවා. රජවරු සහ ජනතාව රට එක්සේසත් කරන්න ගොඩක් කැපවීම් කලා. වාරි කර්මාන්ත සහ කෘෂිකර්මය දියුණු කිරීමට ඔවුන් මහන්සි උනා.';
+    
+    // Using a faster delay for long text to save time, but slow enough to register
+    const input = page.getByPlaceholder('Input Your Singlish Text Here.');
+    await input.pressSequentially(longText, { delay: 10 }); 
+    await page.keyboard.press('Space');
+    await page.waitForTimeout(1000);
+    
+    await expect(page.getByText(expectedText)).toBeVisible();
   });
 
-  // --- POSITIVE FUNCTIONAL TESTS ---
-  test('TC_22: Pos_Fun_0022 - Segmented Syllables (Spaced Out)', async ({ page }) => {
-
-    await test.step('Enter Multiple Singlish Sentences with Special Characters and Punctuation', async () => {
-      const input = page.getByPlaceholder('Input Your Singlish Text Here.');
-      await input.fill('ma ma ge dha ra ya na vaa.');
-      await page.keyboard.press('Space');
-    });
-
-    await test.step('Verify Sinhala Output', async () => {
-      await expect(page.getByText('ම ම ගෙ ද ර ය න වා.')).toBeVisible();
-    });
-
+  test('TC_22: Pos_Fun_0022 - Multiple Spaces', async ({ page }) => {
+    await typeAndConvert(page, 'mama  gamee   yanavaa');
+    await expect(page.getByText('මම  ගමේ   යනවා')).toBeVisible();
   });
 
-  // --- POSITIVE FUNCTIONAL TESTS ---
-  test('TC_23: Pos_Fun_0023 - Brand Name Recognition', async ({ page }) => {
+  test('TC_23: Pos_Fun_0023 - Places and English Words', async ({ page }) => {
+    await typeAndConvert(page, 'code eka push karaadha');
+    await expect(page.getByText('code එක push කරාද')).toBeVisible();
+  });
 
-    await test.step('Enter Multiple Singlish Sentences with Special Characters and Punctuation', async () => {
-      const input = page.getByPlaceholder('Input Your Singlish Text Here.');
-      await input.fill('mama Facebook ekee pinthuura udugatha kalaa.');
-      await page.keyboard.press('Space');
-    });
-
-    await test.step('Verify Sinhala Output', async () => {
-      await expect(page.getByText('මම Facebook එකේ පින්තූර උඩුගත කලා.')).toBeVisible();
-    });
-
+  test('TC_24: Pos_Fun_0024 - Time Formats', async ({ page }) => {
+    await typeAndConvert(page, 'dhumriya 8.30 AM pitath vee');
+    await expect(page.getByText('දුම්රිය 8.30 AM පිටත් වේ')).toBeVisible();
   });
 
 
+  // ==========================================
+  // SECTION 2: ROBUSTNESS / NEGATIVE TESTS (25-34)
+  // These assert the CORRECT Sinhala, so if the tool fails, these turn RED.
+  // ==========================================
 
+  test('TC_25: Neg_Fun_01 - Interrogative Phonetic Ambiguity', async ({ page }) => {
+    await typeAndConvert(page, 'oyata kohomada?');
+    // Expected: Soft 'da' (ද). Actual is likely Hard 'da' (ඩා)
+    await expect(page.getByText('ඔයාට කොහොමද?')).toBeVisible(); 
+  });
 
-  // --- NEGATIVE/ROBUSTNESS FUNCTIONAL TESTS ---
-  // This test uses the 'Joined words' stress test from Appendix 1 
-  // It is expected to FAIL if the system cannot automatically insert spaces.
-  test('TC_02: Neg_Fun_0001 - Stress Test Joined Words', async ({ page }) => {
+  test('TC_26: Neg_Fun_02 - Simple Sentence Vowel Handling', async ({ page }) => {
+    await typeAndConvert(page, 'mama gedara yanawa');
+    // Expected: Full ending (නවා)
+    await expect(page.getByText('මම ගෙදර යනවා')).toBeVisible();
+  });
 
-    // We mark this test as "fixme" or "fail" if you want the report to stay green 
-    // while acknowledging the bug. If you want it to actually fail (turn red), remove the next line.
-    // test.fail(); 
+  test('TC_27: Neg_Fun_03 - Negation Vowel Precision', async ({ page }) => {
+    await typeAndConvert(page, 'mama danne na');
+    // Expected: Long vowel 'nae' (නෑ)
+    await expect(page.getByText('මම දන්නේ නෑ')).toBeVisible();
+  });
 
-    await test.step('Enter Joined Singlish text (Missing Spaces)', async () => {
-      const input = page.getByPlaceholder('Input Your Singlish Text Here.');
-      // Input from Appendix 1, Section 8B: "mamagedharayanavaa" 
-      await input.fill('mamagedharayanavaa');
-      await page.keyboard.press('Space');
-    });
+  test('TC_28: Neg_Fun_04 - Request Diphthong Handling', async ({ page }) => {
+    await typeAndConvert(page, 'mata udau karanna');
+    // Expected: 'udav' (උදව්)
+    await expect(page.getByText('මට උදව් කරන්න')).toBeVisible();
+  });
 
-    await test.step('Verify Sinhala Output contains spaces', async () => {
-      // The system SHOULD ideally output: "මම ගෙදර යනවා"
-      // If the system outputs "මමගෙදරයනවා" (no spaces), this assertion will fail.
-      await expect(page.getByText('මම ගෙදර යනවා')).toBeVisible();
-    });
+  test('TC_29: Neg_Fun_05 - Response Character Mapping', async ({ page }) => {
+    await typeAndConvert(page, 'ow, eka hari');
+    // Expected: 'Ow' (ඔව්)
+    await expect(page.getByText('ඔව්, ඒක හරි')).toBeVisible();
+  });
 
+  test('TC_30: Neg_Fun_06 - Polite Phrasing Grammar', async ({ page }) => {
+    await typeAndConvert(page, 'karunakarala');
+    // Expected: Retroflex 'N' (ණ)
+    await expect(page.getByText('කරුණාකරලා')).toBeVisible();
+  });
+
+  test('TC_31: Neg_Fun_07 - Informal Slang Nasal Sound', async ({ page }) => {
+    await typeAndConvert(page, 'machang');
+    // Expected: Bindu (ං)
+    await expect(page.getByText('මචං')).toBeVisible();
+  });
+
+  test('TC_32: Neg_Fun_08 - Compound Word Spacing', async ({ page }) => {
+    await typeAndConvert(page, 'mata badagini');
+    // Expected: One word (බඩගිනි)
+    await expect(page.getByText('මට බඩගිනි')).toBeVisible();
+  });
+
+  test('TC_33: Neg_Fun_09 - Mixed Language (Brand Names)', async ({ page }) => {
+    await typeAndConvert(page, 'mama Facebook yanawa');
+    // Expected: "Facebook" stays in English
+    await expect(page.getByText('මම Facebook යනවා')).toBeVisible();
+  });
+
+  test('TC_34: Neg_Fun_10 - Unit Preservation', async ({ page }) => {
+    await typeAndConvert(page, 'mata 5kg denna');
+    // Expected: "kg" stays as "kg"
+    await expect(page.getByText('මට 5kg දෙන්න')).toBeVisible();
   });
 
 });
